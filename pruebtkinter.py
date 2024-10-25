@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import openpyxl
+import customtkinter as ctk
 from customtkinter import *
 from tkinter import filedialog
 from PIL import Image
@@ -12,9 +13,27 @@ import os
 def merge_files():
     # Open file dialog for each file
     file1 = filedialog.askopenfilename(title="Select Kinaxis Report", filetypes=[("Excel files", "*.xlsx")])
+    if file1:
+        status_label.configure(text=f"Kinaxis Report loaded: {file1.split('/')[-1]}")
+        window.update()
+
+    # Select the second file
     file2 = filedialog.askopenfilename(title="Select SAP Report", filetypes=[("Excel files", "*.xlsx")])
+    if file2:
+        status_label.configure(text=f"SAP Report loaded: {file2.split('/')[-1]}")
+        window.update()
+
+    # Select the third file
     file3 = filedialog.askopenfilename(title="Select Part Properties Report", filetypes=[("Excel files", "*.xlsx")])
-    
+    if file3:
+        status_label.configure(text=f"Part Properties Report loaded: {file3.split('/')[-1]}")
+        window.update()
+
+    # If all files are selected, you can proceed with merging or other logic
+    if file1 and file2 and file3:
+        status_label.configure(text="All files have been successfully loaded. Proceeding with the merge...")
+        window.update()
+
     if not file1 or not file2 or not file3:
         print("One or more files were not selected.")
         return
@@ -293,19 +312,40 @@ def merge_files():
 
 #%% Create the main window
 def create_gui():
-    root = CTk()
-    root.title("Vendor's Forecast")
-    root.set_appearance_mode("light")
-    root.geometry("400x200")
+    global window, status_label
+    
+    window = ctk.CTk()
+    window.title("Vendor's Forecast")
+    window.geometry("800x400")
+    
+    try:
+        logo_image = Image.open("R.png")
+        logo = ctk.CTkImage(light_image=logo_image, size=(200, 40))
+        logo_label = ctk.CTkLabel(window, image=logo, text="")
+        logo_label.pack(pady=10)
+    except Exception as e:
+        print(f"Error loading image: {e}")
+    
+    # Title
+    title_label = ctk.CTkLabel(window, text="Vendors' Forecast", font=("Arial", 24))
+    title_label.pack(pady=20)
+
+    # Dropdown for report selection
+    report_menu = ctk.CTkOptionMenu(window, values=["Reporte SAP", "Reporte KNX", "Reporte Partes"],text_color="black",fg_color="#3DCD58")
+    report_menu.pack(pady=10, anchor='w', padx=20)
     
     # Add a button to start the file merging process
-    merge_button = CTkButton(root, text="Merge Files", corner_radius=32, 
-                             fg_color="transparent", border_color="#3DCD58",
-                              hover_color="#3DCD58", command=merge_files, border_width=2)
-    merge_button.pack(pady=50)
+    merge_button = ctk.CTkButton(window, text="Cargar...", corner_radius=32,
+                                 fg_color="transparent", border_color="#3DCD58",
+                                 hover_color="#3DCD58", command=merge_files, border_width=2)
+    merge_button.pack(pady=40)
     
+    # Status label to display loading messages
+    status_label = ctk.CTkLabel(window, text="No se han cargado archivos", font=("Arial", 12), text_color="#3DCD58")
+    status_label.pack(pady=20)
+
     # Run the GUI loop
-    root.mainloop()
+    window.mainloop()
 
 
 # Run the GUI
